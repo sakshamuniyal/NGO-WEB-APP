@@ -1,5 +1,7 @@
-import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
+dotenv.config();
+import express, { Request, Response, NextFunction } from 'express';
+
 import userAuthRoutes from './routes/user/authRoutes';
 import userRoutes from './routes/user/userRoutes';
 import donationRoutes from './routes/user/donationRoutes'; // User-facing donation routes
@@ -15,7 +17,7 @@ import caseRoutes from "./routes/user/caseRoutes";
 import contactRoutes from './routes/contactRoutes';
 import galleryRoutes from './routes/galleryRoutes';
 
-dotenv.config();
+
 const app = express();
 
 const allowedOrigins = ['http://localhost:5174', 'http://localhost:5173', 'http://localhost:5001'];

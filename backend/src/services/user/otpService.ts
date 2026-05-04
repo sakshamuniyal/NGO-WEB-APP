@@ -1,7 +1,7 @@
 // src/services/otpService.ts (Updated for dev/prod environment)
 
-import twilio from 'twilio';
 import dotenv from 'dotenv';
+import twilio from 'twilio';
 import * as devOtpStore from './devOtpStore'; // Import your dev store
 
 dotenv.config();
