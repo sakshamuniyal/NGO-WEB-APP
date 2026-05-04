@@ -216,7 +216,7 @@ export default function Contact() {
                 <textarea
                   required
                   name="message"
-                  rows="5"
+                  rows={5}
                   value={formData.message}
                   onChange={handleInputChange}
                   className={`w-full resize-none rounded-2xl border-0 px-4 py-3.5 outline-none ring-2 ring-transparent transition focus:bg-white focus:ring-[#006a3d]/30 ${fieldWrap}`}
