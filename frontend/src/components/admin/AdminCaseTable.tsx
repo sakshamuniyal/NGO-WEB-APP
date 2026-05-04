@@ -97,7 +97,7 @@ const caseFormSchema = z.object({
   patientName: z.string().min(1, "Patient name is required."),
   age: z.preprocess(
     (val) => Number(val),
-    z.number().int().positive("Age must be a positive integer.")
+    z.number().int().positive("Age must be a positive integer."),
   ),
   nationality: z.string().min(1, "Nationality is required."),
   typeOfCase: z.enum(["HEALTH", "EDUCATION", "OTHER"], {
@@ -106,20 +106,20 @@ const caseFormSchema = z.object({
   description: z.string().min(1, "Description is required."),
   targetAmount: z.preprocess(
     (val) => Number(val),
-    z.number().positive("Target amount must be positive.")
+    z.number().positive("Target amount must be positive."),
   ),
   isActive: z.boolean().default(true),
   phoneNumber: z.preprocess(
     (val) => (typeof val === "string" && val.trim() === "" ? undefined : val),
-    z.string().optional()
+    z.string().optional(),
   ),
   permanentAddress: z.preprocess(
     (val) => (typeof val === "string" && val.trim() === "" ? undefined : val),
-    z.string().optional()
+    z.string().optional(),
   ),
   currentAddress: z.preprocess(
     (val) => (typeof val === "string" && val.trim() === "" ? undefined : val),
-    z.string().optional()
+    z.string().optional(),
   ),
   pdfUrls: z.preprocess(
     (val) =>
@@ -127,7 +127,7 @@ const caseFormSchema = z.object({
       val.every((v) => typeof v === "string" && v.trim() !== "")
         ? val
         : [],
-    z.array(z.string()).optional()
+    z.array(z.string()).optional(),
   ),
   imageUrls: z.preprocess(
     (val) =>
@@ -135,7 +135,7 @@ const caseFormSchema = z.object({
       val.every((v) => typeof v === "string" && v.trim() !== "")
         ? val
         : [],
-    z.array(z.string()).optional()
+    z.array(z.string()).optional(),
   ),
   videoUrls: z.preprocess(
     (val) =>
@@ -143,7 +143,7 @@ const caseFormSchema = z.object({
       val.every((v) => typeof v === "string" && v.trim() !== "")
         ? val
         : [],
-    z.array(z.string()).optional()
+    z.array(z.string()).optional(),
   ),
   title: z.string().min(1, "Title is required."),
 });
@@ -441,7 +441,7 @@ const columns: ColumnDef<Case>[] = [
           meta.onEditCase(row.original);
         } else {
           console.warn(
-            "Edit functionality not enabled or onEditCase handler not provided."
+            "Edit functionality not enabled or onEditCase handler not provided.",
           );
         }
       };
@@ -450,7 +450,7 @@ const columns: ColumnDef<Case>[] = [
         if (meta.enableDeleteCase && typeof meta.onDeleteCase === "function") {
           if (
             window.confirm(
-              "Are you sure you want to delete this case? This action cannot be undone."
+              "Are you sure you want to delete this case? This action cannot be undone.",
             )
           ) {
             try {
@@ -473,7 +473,7 @@ const columns: ColumnDef<Case>[] = [
           }
         } else {
           console.warn(
-            "Delete functionality not enabled or onDeleteCase handler not provided."
+            "Delete functionality not enabled or onDeleteCase handler not provided.",
           );
         }
       };
@@ -543,7 +543,7 @@ const CaseForm: React.FC<CaseFormProps> = ({
   formId,
   onFileUploadStatusChange,
 }) => {
-  console.log('[CaseForm] Rendered with initialData:', initialData);
+  console.log("[CaseForm] Rendered with initialData:", initialData);
   const form = useForm<CaseFormValues>({
     resolver: zodResolver(caseFormSchema),
     defaultValues: initialData
@@ -585,10 +585,10 @@ const CaseForm: React.FC<CaseFormProps> = ({
   // State to manage individual file upload progress and status
   const [pdfUploads, setPdfUploads] = React.useState<FileUploadStatus[]>([]);
   const [imageUploads, setImageUploads] = React.useState<FileUploadStatus[]>(
-    []
+    [],
   );
   const [videoUploads, setVideoUploads] = React.useState<FileUploadStatus[]>(
-    []
+    [],
   );
 
   // Calculate if any file is currently uploading
@@ -601,7 +601,7 @@ const CaseForm: React.FC<CaseFormProps> = ({
   }, [pdfUploads, imageUploads, videoUploads]);
 
   React.useEffect(() => {
-    console.log('[CaseForm] useEffect initialData:', initialData);
+    console.log("[CaseForm] useEffect initialData:", initialData);
     onFileUploadStatusChange(isAnyFileCurrentlyUploading);
   }, [isAnyFileCurrentlyUploading, onFileUploadStatusChange]);
 
@@ -650,7 +650,7 @@ const CaseForm: React.FC<CaseFormProps> = ({
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    fileType: "pdf" | "image" | "video"
+    fileType: "pdf" | "image" | "video",
   ) => {
     // Block uploads if no caseId (i.e., new case creation)
     const caseId = initialData?.id;
@@ -718,8 +718,8 @@ const CaseForm: React.FC<CaseFormProps> = ({
                   status: "failed",
                   error: `File size exceeds ${maxSizeMB}MB.`,
                 }
-              : item
-          )
+              : item,
+          ),
         );
         toast.error(`${file.name}: File size exceeds ${maxSizeMB}MB.`);
         continue;
@@ -733,22 +733,22 @@ const CaseForm: React.FC<CaseFormProps> = ({
                   ...item,
                   status: "failed",
                   error: `Invalid file type. Allowed: ${allowedTypes.join(
-                    ", "
+                    ", ",
                   )}`,
                 }
-              : item
-          )
+              : item,
+          ),
         );
         toast.error(
-          `${file.name}: Invalid file type. Allowed: ${allowedTypes.join(", ")}`
+          `${file.name}: Invalid file type. Allowed: ${allowedTypes.join(", ")}`,
         );
         continue;
       }
 
       setUploadsState((prev) =>
         prev.map((item) =>
-          item.file === file ? { ...item, status: "uploading" } : item
-        )
+          item.file === file ? { ...item, status: "uploading" } : item,
+        ),
       );
 
       try {
@@ -769,34 +769,39 @@ const CaseForm: React.FC<CaseFormProps> = ({
           onUploadProgress: (progressEvent) => {
             if (progressEvent.total) {
               const percentCompleted = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
+                (progressEvent.loaded * 100) / progressEvent.total,
               );
               setUploadsState((prev) =>
                 prev.map((item) =>
                   item.file === file
                     ? { ...item, progress: percentCompleted }
-                    : item
-                )
+                    : item,
+                ),
               );
             }
           },
         });
 
         const fileUrl = response.data.fileUrl;
-        console.log(`[FileUpload] Successfully uploaded ${file.name}. URL: ${fileUrl}`);
+        console.log(
+          `[FileUpload] Successfully uploaded ${file.name}. URL: ${fileUrl}`,
+        );
         setUploadsState((prev) =>
           prev.map((item) =>
             item.file === file
               ? { ...item, status: "success", url: fileUrl }
-              : item
-          )
+              : item,
+          ),
         );
         form.setValue(
           `${fileType}Urls`,
           [...(form.getValues(`${fileType}Urls`) || []), fileUrl],
-          { shouldValidate: true }
+          { shouldValidate: true },
         );
-        console.log(`[FileUpload] Updated form state for ${fileType}Urls:`, form.getValues(`${fileType}Urls`));
+        console.log(
+          `[FileUpload] Updated form state for ${fileType}Urls:`,
+          form.getValues(`${fileType}Urls`),
+        );
         toast.success(`${file.name} uploaded successfully!`);
       } catch (error: unknown) {
         console.error(`Error uploading ${file.name}:`, error);
@@ -804,14 +809,14 @@ const CaseForm: React.FC<CaseFormProps> = ({
           error instanceof AxiosError && error.response?.data?.message
             ? error.response.data.message
             : error instanceof Error
-            ? error.message
-            : "Upload failed.";
+              ? error.message
+              : "Upload failed.";
         setUploadsState((prev) =>
           prev.map((item) =>
             item.file === file
               ? { ...item, status: "failed", error: errorMessage }
-              : item
-          )
+              : item,
+          ),
         );
         toast.error(`${file.name}: ${errorMessage}`);
       }
@@ -821,7 +826,7 @@ const CaseForm: React.FC<CaseFormProps> = ({
 
   const handleRemoveFile = (
     fileType: "pdf" | "image" | "video",
-    urlToRemove: string
+    urlToRemove: string,
   ) => {
     const currentUrls = form.getValues(`${fileType}Urls`) || [];
     const updatedUrls = currentUrls.filter((url) => url !== urlToRemove);
@@ -833,12 +838,12 @@ const CaseForm: React.FC<CaseFormProps> = ({
     // Ensure all uploads are completed before saving the form
     const allUploads = [...pdfUploads, ...imageUploads, ...videoUploads];
     const pendingOrUploading = allUploads.some(
-      (u) => u.status === "pending" || u.status === "uploading"
+      (u) => u.status === "pending" || u.status === "uploading",
     );
 
     if (pendingOrUploading) {
       toast.error(
-        "Please wait for all files to finish uploading before saving."
+        "Please wait for all files to finish uploading before saving.",
       );
       return;
     }
@@ -872,11 +877,20 @@ const CaseForm: React.FC<CaseFormProps> = ({
       finalData.videoUrls = Array.from(new Set(finalData.videoUrls));
     }
 
-    console.log('[CaseForm] handleSubmit data:', data);
-    console.log('[CaseForm] handleSubmit form pdfUrls:', form.getValues('pdfUrls'));
-    console.log('[CaseForm] handleSubmit form imageUrls:', form.getValues('imageUrls'));
-    console.log('[CaseForm] handleSubmit form videoUrls:', form.getValues('videoUrls'));
-    console.log('[CaseForm] handleSubmit finalData:', finalData);
+    console.log("[CaseForm] handleSubmit data:", data);
+    console.log(
+      "[CaseForm] handleSubmit form pdfUrls:",
+      form.getValues("pdfUrls"),
+    );
+    console.log(
+      "[CaseForm] handleSubmit form imageUrls:",
+      form.getValues("imageUrls"),
+    );
+    console.log(
+      "[CaseForm] handleSubmit form videoUrls:",
+      form.getValues("videoUrls"),
+    );
+    console.log("[CaseForm] handleSubmit finalData:", finalData);
     await onSave(finalData);
   });
 
@@ -929,7 +943,7 @@ const CaseForm: React.FC<CaseFormProps> = ({
       <div className="grid gap-2">
         <Label htmlFor="typeOfCase">Case Type</Label>
         <Select
-          value={form.watch("typeOfCase")}
+          value={form.watch("typeOfCase") || ""}
           onValueChange={(value) =>
             form.setValue("typeOfCase", value as CaseType)
           }
@@ -1108,7 +1122,9 @@ const CaseForm: React.FC<CaseFormProps> = ({
                 size="icon"
                 onClick={() => handleRemoveFile("pdf", url)}
                 className="text-red-500 hover:text-red-700"
-                disabled={!initialData?.id || isSaving || isAnyFileCurrentlyUploading}
+                disabled={
+                  !initialData?.id || isSaving || isAnyFileCurrentlyUploading
+                }
               >
                 <XCircleIcon className="h-4 w-4" />
               </Button>
@@ -1143,11 +1159,15 @@ const CaseForm: React.FC<CaseFormProps> = ({
                     onClick={() => {
                       if (upload.url) handleRemoveFile("pdf", upload.url);
                       setPdfUploads((prev) =>
-                        prev.filter((item) => item !== upload)
+                        prev.filter((item) => item !== upload),
                       ); // Remove from upload state
                     }}
                     className="text-red-500 hover:text-red-700"
-                    disabled={!initialData?.id || isSaving || isAnyFileCurrentlyUploading}
+                    disabled={
+                      !initialData?.id ||
+                      isSaving ||
+                      isAnyFileCurrentlyUploading
+                    }
                   >
                     <XCircleIcon className="h-4 w-4" />
                   </Button>
@@ -1217,7 +1237,9 @@ const CaseForm: React.FC<CaseFormProps> = ({
                 size="icon"
                 onClick={() => handleRemoveFile("image", url)}
                 className="text-red-500 hover:text-red-700"
-                disabled={!initialData?.id || isSaving || isAnyFileCurrentlyUploading}
+                disabled={
+                  !initialData?.id || isSaving || isAnyFileCurrentlyUploading
+                }
               >
                 <XCircleIcon className="h-4 w-4" />
               </Button>
@@ -1252,11 +1274,15 @@ const CaseForm: React.FC<CaseFormProps> = ({
                     onClick={() => {
                       if (upload.url) handleRemoveFile("image", upload.url);
                       setPdfUploads((prev) =>
-                        prev.filter((item) => item !== upload)
+                        prev.filter((item) => item !== upload),
                       ); // Remove from upload state
                     }}
                     className="text-red-500 hover:text-red-700"
-                    disabled={!initialData?.id || isSaving || isAnyFileCurrentlyUploading}
+                    disabled={
+                      !initialData?.id ||
+                      isSaving ||
+                      isAnyFileCurrentlyUploading
+                    }
                   >
                     <XCircleIcon className="h-4 w-4" />
                   </Button>
@@ -1326,7 +1352,9 @@ const CaseForm: React.FC<CaseFormProps> = ({
                 size="icon"
                 onClick={() => handleRemoveFile("video", url)}
                 className="text-red-500 hover:text-red-700"
-                disabled={!initialData?.id || isSaving || isAnyFileCurrentlyUploading}
+                disabled={
+                  !initialData?.id || isSaving || isAnyFileCurrentlyUploading
+                }
               >
                 <XCircleIcon className="h-4 w-4" />
               </Button>
@@ -1361,11 +1389,15 @@ const CaseForm: React.FC<CaseFormProps> = ({
                     onClick={() => {
                       if (upload.url) handleRemoveFile("video", upload.url);
                       setPdfUploads((prev) =>
-                        prev.filter((item) => item !== upload)
+                        prev.filter((item) => item !== upload),
                       ); // Remove from upload state
                     }}
                     className="text-red-500 hover:text-red-700"
-                    disabled={!initialData?.id || isSaving || isAnyFileCurrentlyUploading}
+                    disabled={
+                      !initialData?.id ||
+                      isSaving ||
+                      isAnyFileCurrentlyUploading
+                    }
                   >
                     <XCircleIcon className="h-4 w-4" />
                   </Button>
@@ -1413,7 +1445,7 @@ export function AdminCaseTable() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState({
@@ -1478,7 +1510,7 @@ export function AdminCaseTable() {
   };
 
   const handleSaveCase = async (values: CaseFormValues) => {
-    console.log('[AdminCaseTable] handleSaveCase received values:', values);
+    console.log("[AdminCaseTable] handleSaveCase received values:", values);
     setIsSavingCase(true);
     try {
       if (values.id) {
@@ -1496,7 +1528,7 @@ export function AdminCaseTable() {
           return;
         }
         const { id, ...createPayload } = values;
-        console.log(values)
+        console.log(values);
         await api.post("/api/admin/cases", createPayload);
         toast.success("Case created successfully.");
       }
@@ -1571,7 +1603,7 @@ export function AdminCaseTable() {
 
   const getSelectFilterValue = (columnId: string) => {
     const filter = table.getColumn(columnId)?.getFilterValue();
-    return filter === "" ? "all" : (filter as string) ?? "all";
+    return filter === "" ? "all" : ((filter as string) ?? "all");
   };
 
   const setSelectColumnFilterValue = (columnId: string, value: string) => {
@@ -1696,7 +1728,7 @@ export function AdminCaseTable() {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -1715,7 +1747,7 @@ export function AdminCaseTable() {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -1863,8 +1895,8 @@ export function AdminCaseTable() {
               {isSavingCase
                 ? "Saving..."
                 : editingCase?.id
-                ? "Save Changes"
-                : "Create Case"}{" "}
+                  ? "Save Changes"
+                  : "Create Case"}{" "}
               {/* ⭐ Use editingCase?.id ⭐ */}
             </Button>
           </DialogFooter>
