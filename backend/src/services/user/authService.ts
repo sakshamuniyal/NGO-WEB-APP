@@ -112,8 +112,8 @@ export async function verifyOTP(
         httpOnly: true,
         path: '/',
         secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
-        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: 'none',
+        maxAge: 8 * 60 * 60 * 1000,
     });
 
     // 7. Return user status and the user object for client-side redirection and state update
