@@ -2,8 +2,9 @@
 import axios, { AxiosResponse } from 'axios';
 import { Case, Donation } from '../types';
 
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL, 
+  baseURL: import.meta.env.VITE_ENV === 'production' ? import.meta.env.VITE_API_BASE_URL : import.meta.env.VITE_API_BASE_URL_DEV, 
   withCredentials: true,
 });
 

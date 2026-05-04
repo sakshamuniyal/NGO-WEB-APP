@@ -1,5 +1,5 @@
 // src/components/component/MyForm.tsx
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,7 +18,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import LocationSelector from "@/components/ui/location-input"; // Corrected import
+import LocationSelector, {
+  type CountryProps,
+  type StateProps,
+} from "@/components/ui/location-input";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal, XCircle } from "lucide-react";
@@ -34,8 +37,10 @@ const formSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   companyName: z.string().optional().or(z.literal("")),
   countryRegion: z
-    .array(z.string())
-    .length(2, "Country and State are required"),
+    .tuple([z.string(), z.string()])
+    .refine(([c, s]) => c.trim().length > 0 && s.trim().length > 0, {
+      message: "Country and State are required",
+    }),
   addressLine1: z.string().min(1, "Street address is required"),
   addressLine2: z.string().optional().or(z.literal("")),
   postcode: z.string().min(4, "Postcode is required"),
@@ -56,8 +61,8 @@ export default function MyForm({ buttonName }: { buttonName: string }) {
 
   // States for LocationSelector
   // Initialize with empty strings or null, and let useEffect handle actual user data
-  const [countryName, setCountryName] = useState<string>(""); // Will store ISO2 code
-  const [stateName, setStateName] = useState<string>(""); // Will store full state name
+  const [countryName, setCountryName] = useState<string>("IN"); // ISO2, must match countryRegion[0]
+  const [stateName, setStateName] = useState<string>(""); // Full state name
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,7 +70,7 @@ export default function MyForm({ buttonName }: { buttonName: string }) {
       firstName: "",
       lastName: "",
       companyName: "",
-      countryRegion: ["", ""], // Ensure this matches initial state of countryName/stateName
+      countryRegion: ["IN", ""],
       addressLine1: "",
       addressLine2: "",
       postcode: "",
@@ -90,22 +95,13 @@ export default function MyForm({ buttonName }: { buttonName: string }) {
         addressLine2: user.address?.line2 || "",
         postcode: user.address?.zipCode || "",
         countryRegion: [
-          user.address?.country || "", // This is the ISO2 code (e.g., "IN")
-          user.address?.state || "", // This is the full state name (e.g., "Delhi")
+          user.address?.country?.trim() || "IN",
+          user.address?.state || "",
         ],
       });
 
-      // Update local states for LocationSelector based on user data
-      // ⭐ IMPORTANT: Set countryName to ISO2 code as received ⭐
-      setCountryName(user.address?.country || "IN"); // Default to "IN" if country is not set
+      setCountryName(user.address?.country?.trim() || "IN");
       setStateName(user.address?.state || "");
-
-      // ⭐ Add console logs here to verify the data being passed ⭐
-      console.log("MyForm useEffect - User data loaded:");
-      console.log("  user.address?.country:", user.address?.country);
-      console.log("  user.address?.state:", user.address?.state);
-      console.log("  countryName (state):", user.address?.country || "India");
-      console.log("  stateName (state):", user.address?.state || "");
     } else if (!authLoading && !user) {
       // If auth is loaded but no user, ensure defaults are set correctly
       setCountryName("IN");
@@ -123,7 +119,35 @@ export default function MyForm({ buttonName }: { buttonName: string }) {
         countryRegion: ["IN", ""],
       });
     }
-  }, [user, authLoading, form]); // Dependencies ensure this runs when user/loading changes
+    // form.reset from react-hook-form is stable; omitting `form` avoids extra resets.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading]);
+
+  const handleLocationCountryChange = useCallback(
+    (country: CountryProps | null) => {
+      const countryIso2 = country?.iso2 || "";
+      setCountryName(countryIso2);
+      form.setValue("countryRegion", [countryIso2, ""], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    },
+    [form],
+  );
+
+  const handleLocationStateChange = useCallback(
+    (state: StateProps | null) => {
+      const stateVal = state?.name ?? "";
+      setStateName(stateVal);
+      const existingCountry = form.getValues("countryRegion")[0]?.trim();
+      const countryIso = existingCountry || countryName || "IN";
+      form.setValue("countryRegion", [countryIso, stateVal], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    },
+    [form, countryName],
+  );
 
   if (authLoading) {
     return (
@@ -174,7 +198,7 @@ export default function MyForm({ buttonName }: { buttonName: string }) {
 
     try {
       console.log("Payload sent:", payload);
-      const response = await api.put("api/update-profile", payload, {
+      const response = await api.put("/api/update-profile", payload, {
         withCredentials: true,
       });
 
@@ -293,27 +317,10 @@ export default function MyForm({ buttonName }: { buttonName: string }) {
               <FormControl>
                 {/* LocationSelector receives props from MyForm's local state */}
                 <LocationSelector
-                  countryCode={countryName} // This is the source of truth for LocationSelector
-                  stateName={stateName} // This is the source of truth for LocationSelector
-                  onCountryChange={(country) => {
-                    const countryIso2 = country?.iso2 || ""; // ⭐ Get ISO2 from country object ⭐
-                    const countryNameFull = country?.name || ""; // Get full name for form storage
-                    setCountryName(countryIso2); // Update local state for LocationSelector with ISO2
-                    form.setValue("countryRegion", [
-                      countryNameFull,
-                      form.getValues("countryRegion")[1],
-                    ]); // Update react-hook-form state with full name
-                    form.trigger("countryRegion"); // Re-validate
-                  }}
-                  onStateChange={(state) => {
-                    const stateVal = state?.name || ""; // State name for both local state and form
-                    setStateName(stateVal);
-                    form.setValue("countryRegion", [
-                      form.getValues("countryRegion")[0],
-                      stateVal,
-                    ]);
-                    form.trigger("countryRegion"); // Re-validate
-                  }}
+                  countryCode={countryName}
+                  stateName={stateName}
+                  onCountryChange={handleLocationCountryChange}
+                  onStateChange={handleLocationStateChange}
                 />
               </FormControl>
               <FormMessage />

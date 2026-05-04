@@ -5,6 +5,16 @@ import jwt from 'jsonwebtoken';
 import { AdminWithRolePrisma } from '../../types/admin';
 import prisma from '../../prisma'; // ✅ Import your configured singleton
 
+/** SameSite=None requires Secure; on HTTP localhost use Lax so the cookie is stored and sent. */
+function adminTokenCookieBase() {
+  const isProd = process.env.NODE_ENV === 'production';
+  return {
+    httpOnly: true as const,
+    secure: isProd,
+    sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
+    path: '/' as const,
+  };
+}
 
 export const loginAdmin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -33,15 +43,14 @@ export const loginAdmin = async (req: Request, res: Response) => {
       { expiresIn: '8h' } // Token expires in 8 hours for testing
     );
 
-    // ⭐ CRITICAL FIX: Ensure 'secure' is false for HTTP localhost, and 'sameSite' is 'Lax' ⭐
+    const cookieOpts = adminTokenCookieBase();
     res.cookie('adminToken', token, {
-      httpOnly: true, // Prevents client-side JavaScript from accessing the cookie (good for security)
-      secure: process.env.NODE_ENV === 'production', // ⭐ This will be false in development (HTTP) ⭐
-      sameSite: 'none', // ⭐ 'Lax' typically works for cross-origin localhost (frontend on 5173, backend on 5001) ⭐
-      maxAge: 8 * 60 * 60 * 1000, // Corresponding cookie maxAge (8 hours in milliseconds)
-      path: '/', // Make cookie available to all paths on the domain
+      ...cookieOpts,
+      maxAge: 8 * 60 * 60 * 1000,
     });
-    console.log(`[loginAdmin] Admin ${admin.id} logged in successfully, cookie set. Token expires in 8h. Cookie secure: ${process.env.NODE_ENV === 'production'}, sameSite: Lax.`);
+    console.log(
+      `[loginAdmin] Admin ${admin.id} logged in successfully, cookie set (secure=${cookieOpts.secure}, sameSite=${cookieOpts.sameSite}).`,
+    );
     res.json({ admin });
   } catch (error) {
     console.error('[loginAdmin] Login failed due to server error:', error);
@@ -71,12 +80,7 @@ export const logoutAdmin = async (req: Request, res: Response) => {
   console.log('[logoutAdmin] Attempting admin logout.');
   try {
     // Ensure clearCookie uses the same options as setCookie (except maxAge/expires)
-    res.clearCookie('adminToken', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/'
-    });
+    res.clearCookie('adminToken', adminTokenCookieBase());
     console.log('[logoutAdmin] Admin token cookie cleared.');
     res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {

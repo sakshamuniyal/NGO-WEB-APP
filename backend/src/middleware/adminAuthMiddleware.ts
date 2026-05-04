@@ -40,7 +40,10 @@ export const protectAdmin = async (req: Request, res: Response, next: NextFuncti
       req.admin = undefined; // Explicitly ensure req.admin is undefined
       return next(); // Allow the status check to proceed to getAdminStatus
     } else {
-      console.warn(`[protectAdmin] No token or JWT_SECRET for protected route ${req.originalUrl}. Sending 401.`);
+      const detail = !process.env.JWT_SECRET
+        ? 'JWT_SECRET is not set'
+        : 'adminToken cookie is missing (log in again after fixing cookie settings)';
+      console.warn(`[protectAdmin] ${detail} for ${req.originalUrl}. Sending 401.`);
       return res.status(401).json({ error: 'Authentication required: No admin token or server config missing.' });
     }
   }

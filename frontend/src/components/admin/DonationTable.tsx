@@ -23,7 +23,7 @@ import {
   ChevronsRightIcon,
   ColumnsIcon,
   LoaderIcon,
-  MoreVerticalIcon,
+  // MoreVerticalIcon,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -32,8 +32,8 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
+  // DropdownMenuItem,
+  // DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -265,42 +265,42 @@ const columns: ColumnDef<Donation>[] = [
       return true;
     },
   },
-  {
-    id: "actions",
-    cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
-            size="icon"
-          >
-            <MoreVerticalIcon />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem
-            onClick={() => console.log("View details for:", row.original.id)}
-          >
-            View Details
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => console.log("Edit status for:", row.original.id)}
-          >
-            Edit Status
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => console.log("Delete donation:", row.original.id)}
-            className="text-red-500"
-          >
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-  },
+  // {
+  //   id: "actions",
+  //   cell: ({ row }) => (
+  //     <DropdownMenu>
+  //       <DropdownMenuTrigger asChild>
+  //         <Button
+  //           variant="ghost"
+  //           className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
+  //           size="icon"
+  //         >
+  //           <MoreVerticalIcon />
+  //           <span className="sr-only">Open menu</span>
+  //         </Button>
+  //       </DropdownMenuTrigger>
+  //       <DropdownMenuContent align="end" className="w-32">
+  //         <DropdownMenuItem
+  //           onClick={() => console.log("View details for:", row.original.id)}
+  //         >
+  //           View Details
+  //         </DropdownMenuItem>
+  //         <DropdownMenuItem
+  //           onClick={() => console.log("Edit status for:", row.original.id)}
+  //         >
+  //           Edit Status
+  //         </DropdownMenuItem>
+  //         <DropdownMenuSeparator />
+  //         <DropdownMenuItem
+  //           onClick={() => console.log("Delete donation:", row.original.id)}
+  //           className="text-red-500"
+  //         >
+  //           Delete
+  //         </DropdownMenuItem>
+  //       </DropdownMenuContent>
+  //     </DropdownMenu>
+  //   ),
+  // },
 ];
 
 export function DonationTable() {

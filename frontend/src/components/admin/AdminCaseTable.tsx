@@ -603,7 +603,12 @@ const CaseForm: React.FC<CaseFormProps> = ({
   React.useEffect(() => {
     console.log("[CaseForm] useEffect initialData:", initialData);
     onFileUploadStatusChange(isAnyFileCurrentlyUploading);
-  }, [isAnyFileCurrentlyUploading, onFileUploadStatusChange]);
+  }, [
+    isAnyFileCurrentlyUploading,
+    onFileUploadStatusChange,
+    initialData,
+    isSaving,
+  ]);
 
   React.useEffect(() => {
     if (initialData) {
@@ -943,16 +948,20 @@ const CaseForm: React.FC<CaseFormProps> = ({
       <div className="grid gap-2">
         <Label htmlFor="typeOfCase">Case Type</Label>
         <Select
+          name="typeOfCase"
           value={form.watch("typeOfCase") || ""}
           onValueChange={(value) =>
-            form.setValue("typeOfCase", value as CaseType)
+            form.setValue("typeOfCase", value as CaseType, {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
           }
           disabled={isSaving || isAnyFileCurrentlyUploading}
         >
-          <SelectTrigger>
+          <SelectTrigger id="typeOfCase">
             <SelectValue placeholder="Select a case type" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-[300]">
             <SelectItem value="HEALTH">Health</SelectItem>
             <SelectItem value="EDUCATION">Education</SelectItem>
             <SelectItem value="OTHER">Other</SelectItem>

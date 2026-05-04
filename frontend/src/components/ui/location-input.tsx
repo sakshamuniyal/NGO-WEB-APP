@@ -143,32 +143,9 @@ const LocationSelector = ({
       }
     }
 
-    // 3. Update component's state
     setSelectedCountry(currentCountry);
     setSelectedState(currentSelectedState);
-
-    // 4. Notify parent component if values are found (to prevent infinite loop if they are already the same)
-    // IMPORTANT: Only call onCountryChange/onStateChange if the value *actually changed*
-    // or if the initial value was indeed different from the default.
-    // This part often causes "Maximum update depth exceeded" warnings.
-    // Let's rely on MyForm's useEffect for initial setting and only use these for user interaction.
-    // However, if the initial state setting *must* be propagated, we need to be careful.
-    // The current setup means MyForm sets the props, LocationSelector sets its internal state.
-    // If LocationSelector then calls onCountryChange/onStateChange with the *same* value,
-    // MyForm's setState won't re-render it, and it should be fine.
-    // The previous error might be from a subtle difference in string values.
-
-    // Let's ensure these callbacks are only called if the value genuinely changes
-    // or if the initial setting is explicitly needed by the parent.
-    // For now, we'll keep them as they are, as the primary cause is the lookup logic.
-  }, [
-    countryCode,
-    stateName,
-    countriesData,
-    statesData,
-    onCountryChange,
-    onStateChange,
-  ]);
+  }, [countryCode, stateName]);
 
   return (
     <div className="flex gap-4">
