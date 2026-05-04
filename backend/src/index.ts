@@ -20,11 +20,16 @@ const app = express();
 
 const allowedOrigins = ['http://localhost:5174', 'http://localhost:5173', 'http://localhost:5001'];
 
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
 const corsOptions = {
   origin: (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error(`CORS Blocked for origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -141,5 +146,4 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// Critical for Vercel serverless deployment
 export default app;
