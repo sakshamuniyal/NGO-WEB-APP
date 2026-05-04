@@ -1,9 +1,0 @@
-generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"] // 👈 Add this line
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL") // 👈 Add this line (it reads from your .env)
-}
