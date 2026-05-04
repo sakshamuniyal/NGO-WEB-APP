@@ -1,0 +1,4 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "ignore": ["src/components/ui/**", "src/types/react-google-recaptcha.d.ts"]
+}

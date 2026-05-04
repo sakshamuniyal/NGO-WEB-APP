@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Keep this block, but do NOT put a 'url' line here.
+}
+
+model User {
+  id          String     @id @default(uuid())
+  firstName   String?
+  lastName    String?
+  companyName String?
+  email       String?    @unique
+  panCard     String?    @unique
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  phoneNumber String     @unique
+  address     Address?
+  donations   Donation[]
+}
+
+model Address {
+  id      String  @id @default(uuid())
+  userId  String  @unique
+  country String
+  state   String
+  line1   String
+  line2   String?
+  zipCode String
+  user    User    @relation(fields: [userId], references: [id])
+}
+
+model Case {
+  id               String     @id @default(uuid())
+  patientName      String
+  age              Int
+  nationality      String
+  typeOfCase       CaseType
+  title            String
+  description      String
+  pdfUrls          String[] // ⭐ CHANGED from pdfUrl String? to pdfUrls String[]? ⭐
+  imageUrls        String[] // ⭐ CHANGED from imageUrl String? to imageUrls String[]? ⭐
+  videoUrls        String[] // ⭐ CHANGED from videoUrl String? to videoUrls String[]? ⭐
+  phoneNumber      String?
+  permanentAddress String?
+  currentAddress   String?
+  targetAmount     Float
+  raisedAmount     Float      @default(0)
+  isActive         Boolean    @default(true)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  createdById      String
+  createdBy        Admin      @relation(fields: [createdById], references: [id])
+  donations        Donation[]
+}
+
+model Donation {
+  id                   String        @id @default(uuid())
+  userId               String?
+  caseId               String?
+  amount               Decimal       @db.Decimal(10, 2)
+  currency             String
+  paymentMode          PaymentMode   @default(OTHER)
+  transactionId        String        @unique
+  timeOfPayment        DateTime      @default(now())
+  donorEmail           String?
+  donorName            String?
+  donorPhoneNumber     String?
+  paymentStatus        PaymentStatus @default(PENDING)
+  isAnonymous          Boolean       @default(false)
+  gatewayTransactionId String?
+  certificate          Certificate?
+  case                 Case?         @relation(fields: [caseId], references: [id])
+  user                 User?         @relation(fields: [userId], references: [id])
+  receipt              Receipt?
+}
+
+model Receipt {
+  id         String   @id @default(uuid())
+  donationId String   @unique
+  receiptNo  String?  @unique
+  fileUrl    String
+  createdAt  DateTime @default(now())
+  donation   Donation @relation(fields: [donationId], references: [id])
+}
+
+model Certificate {
+  id         String   @id @default(uuid())
+  donationId String   @unique
+  fileUrl    String
+  createdAt  DateTime @default(now())
+  donation   Donation @relation(fields: [donationId], references: [id])
+}
+
+model Admin {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  roleId    String
+  role      Role       @relation(fields: [roleId], references: [id])
+  auditLogs AuditLog[]
+  cases     Case[]
+}
+
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  admins      Admin[]
+  permissions Permission[] @relation("RolePermissions")
+}
+
+model Permission {
+  id    String @id @default(uuid())
+  name  String @unique
+  roles Role[] @relation("RolePermissions")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  adminId   String
+  action    String
+  details   Json?
+  createdAt DateTime @default(now())
+  admin     Admin    @relation(fields: [adminId], references: [id])
+}
+
+model Contact {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+enum PaymentMode {
+  CASH
+  CARD
+  UPI
+  NETBANKING
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum CaseType {
+  HEALTH
+  EDUCATION
+  OTHER
+}

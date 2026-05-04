@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Case" ALTER COLUMN "title" DROP DEFAULT;

@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/routes/authroutes.ts","./src/services/authservice.ts","./src/services/otpservice.ts","./src/services/otpstore.ts","./src/utils/jwt.ts"],"version":"5.6.3"}
