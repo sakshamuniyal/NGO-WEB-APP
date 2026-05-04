@@ -1,5 +1,13 @@
 import dotenv from 'dotenv';
 dotenv.config();
+console.log("--- Environment Variable Diagnostic ---");
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("Twilio AC SID exists:", !!process.env.TWILIO_ACCOUNT_SID);
+console.log("Twilio SK Key exists:", !!process.env.TWILIO_API_KEY);
+console.log("Twilio VA Service exists:", !!process.env.TWILIO_VERIFY_SERVICE_SID);
+console.log("PhonePe Client ID exists:", !!process.env.PHONEPE_CLIENT_ID);
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+console.log("---------------------------------------");
 import express, { Request, Response, NextFunction } from 'express';
 
 import userAuthRoutes from './routes/user/authRoutes';
@@ -59,7 +67,7 @@ app.use((req, res, next) => {
 // CSP Header - important for browser security
 app.use((req, res, next) => {
   const backendUrl = process.env.NODE_ENV === 'production' 
-    ? '${process.env.BACKEND_URL}' 
+    ? process.env.BACKEND_URL
     : 'http://localhost:5001';
 
   res.setHeader(
