@@ -12,6 +12,12 @@ import {
   CheckDonationStatusResponse,
   UserDonation
 } from '../../types/user/donation';
+
+function phonePeSdkErrorCode(error: unknown): string | undefined {
+  if (typeof error !== 'object' || error === null) return undefined;
+  const code = (error as { code?: unknown }).code;
+  return typeof code === 'string' ? code : undefined;
+}
 import { generatePdfAndEmail } from '../admin/receiptService'; // New Import
 import { getPrivateFileUrl } from '../admin/uploadService';
 
@@ -175,8 +181,27 @@ export const initiatePhonePePayment = async (payload: InitiateDonationRequest, l
     .redirectUrl(`${FRONTEND_URL}/donation-processing?merchantTransactionId=${merchantTransactionId}`)
     .build();
 
-  const phonePeResponse = await phonePeClient.pay(phonePeRequest);
-  return { paymentLink: phonePeResponse.redirectUrl!, newDonationId: newDonation.id };
+  try {
+    const phonePeResponse = await phonePeClient.pay(phonePeRequest);
+    return { paymentLink: phonePeResponse.redirectUrl!, newDonationId: newDonation.id };
+  } catch (err: unknown) {
+    await prisma.donation.update({
+      where: { id: newDonation.id },
+      data: { paymentStatus: 'FAILED' },
+    });
+
+    const code = phonePeSdkErrorCode(err);
+    if (code === 'OIM007') {
+      console.error(
+        '[PhonePe] OIM007 Client Not Found — use Standard Checkout client_id and client_secret from PhonePe PG onboarding (not legacy Merchant ID / Salt Key unless they are the issued OAuth pair). See backend/src/config/phonepe.ts.'
+      );
+      throw new Error(
+        'Payment gateway configuration error: PhonePe does not recognize this client for production. Confirm Standard Checkout credentials in your deployment environment.'
+      );
+    }
+
+    throw err;
+  }
 };
 
 export const processPhonePeWebhook = async (authorizationHeader: string, rawBody: string) => {
