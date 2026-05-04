@@ -7,10 +7,12 @@ import * as devOtpStore from './devOtpStore'; // Import your dev store
 dotenv.config();
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
+const apiKey = process.env.TWILIO_API_KEY;
+const apiSecret = process.env.TWILIO_API_SECRET;
 const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
-const client = twilio(accountSid, authToken);
+
+const client = twilio(apiKey, apiSecret, {accountSid: accountSid});
 
 // Check if we are in development mode
 const isDevelopment = process.env.NODE_ENV === 'development';
@@ -23,7 +25,7 @@ export async function initiateTwilioVerification(fullPhoneNumber: string): Promi
   }
 
   // --- Production/Forced Twilio Logic ---
-  if (!accountSid || !authToken || !verifyServiceSid) {
+  if (!accountSid || !apiKey || !apiSecret || !verifyServiceSid) {
     console.error('Twilio Verify credentials not fully configured. Cannot initiate SMS.');
     throw new Error('Twilio Verify service not configured correctly.');
   }
@@ -48,7 +50,7 @@ export async function checkTwilioVerification(fullPhoneNumber: string, inputOTP:
   }
 
   // --- Production/Forced Twilio Logic ---
-  if (!accountSid || !authToken || !verifyServiceSid) {
+  if (!accountSid || !apiKey || !apiSecret || !verifyServiceSid) {
     console.error('Twilio Verify credentials not fully configured. Cannot verify OTP.');
     throw new Error('Twilio Verify service not configured correctly.');
   }

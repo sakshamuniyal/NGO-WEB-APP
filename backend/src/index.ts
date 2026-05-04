@@ -49,14 +49,26 @@ app.use((req, res, next) => {
 
 // CSP Header - important for browser security
 app.use((req, res, next) => {
+  const backendUrl = process.env.NODE_ENV === 'production' 
+    ? '${process.env.BACKEND_URL}' 
+    : 'http://localhost:5001';
+
   res.setHeader(
     "Content-Security-Policy",
-    "script-src 'self' https://www.google.com https://www.gstatic.com; connect-src 'self' http://localhost:5001 https://www.google.com; frame-src https://www.google.com; object-src 'none'"
+    `script-src 'self' https://www.google.com https://www.gstatic.com; connect-src 'self' ${backendUrl} https://www.google.com; frame-src https://www.google.com; object-src 'none'`
   );
   next();
 });
 
-// --- ⭐ ROUTE REGISTRATION ORDER IS CRITICAL ⭐ ---
+// Base route for Vercel health checks and environment verification
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    message: 'NGO-WEB-APP Backend API',
+    environment: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  });
+});
 // Register ADMIN-SPECIFIC routes first to ensure they take precedence for '/api/admin/*' paths
 app.use("/api/admin", adminAuthRoutes);
 console.log("Registered /api/admin auth routes.");
@@ -121,8 +133,13 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log('Backend initialization complete.');
-});
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5001;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log('Backend initialization complete.');
+  });
+}
+
+// Critical for Vercel serverless deployment
+export default app;
