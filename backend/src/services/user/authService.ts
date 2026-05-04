@@ -110,8 +110,9 @@ export async function verifyOTP(
     // 6. Set the JWT token as an HttpOnly cookie
     res.cookie("token", token, {
         httpOnly: true,
+        path: '/',
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
         maxAge: 24 * 60 * 60 * 1000,
     });
 

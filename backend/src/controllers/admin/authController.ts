@@ -37,7 +37,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
     res.cookie('adminToken', token, {
       httpOnly: true, // Prevents client-side JavaScript from accessing the cookie (good for security)
       secure: process.env.NODE_ENV === 'production', // ⭐ This will be false in development (HTTP) ⭐
-      sameSite: 'lax', // ⭐ 'Lax' typically works for cross-origin localhost (frontend on 5173, backend on 5001) ⭐
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // ⭐ 'Lax' typically works for cross-origin localhost (frontend on 5173, backend on 5001) ⭐
       maxAge: 8 * 60 * 60 * 1000, // Corresponding cookie maxAge (8 hours in milliseconds)
       path: '/', // Make cookie available to all paths on the domain
     });
