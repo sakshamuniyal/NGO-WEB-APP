@@ -26,6 +26,8 @@ if (process.env.FRONTEND_URL) {
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) => {
+    console.log(`[CORS Check] Incoming Origin: ${origin}`);
+    console.log(`[CORS Check] Allowed List: ${allowedOrigins.join(', ')}`);
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
