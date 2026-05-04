@@ -1,7 +1,19 @@
-import { useState, useRef, type ChangeEvent, type FormEvent, type ReactNode } from "react";
+import {
+  useState,
+  useRef,
+  type ChangeEvent,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { Link } from "react-router-dom";
 import ReCAPTCHA, { type ReCAPTCHAInstance } from "react-google-recaptcha";
-import { ArrowRightIcon, HeartHandshake, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  HeartHandshake,
+  MailIcon,
+  MapPinIcon,
+  PhoneIcon,
+} from "lucide-react";
 import { api } from "../../services/api";
 import {
   btnPrimaryGiggles,
@@ -34,7 +46,7 @@ export default function Contact() {
   const recaptchaRef = useRef<ReCAPTCHAInstance | null>(null);
 
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -44,14 +56,22 @@ export default function Contact() {
     e.preventDefault();
     setSubmitStatus({ type: null, message: "" });
 
-    if (!formData.name || !formData.email || !formData.phone || !formData.message) {
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.phone ||
+      !formData.message
+    ) {
       setSubmitStatus({ type: "error", message: "Please fill in all fields." });
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setSubmitStatus({ type: "error", message: "Please enter a valid email address." });
+      setSubmitStatus({
+        type: "error",
+        message: "Please enter a valid email address.",
+      });
       return;
     }
 
@@ -94,13 +114,15 @@ export default function Contact() {
       } else {
         setSubmitStatus({
           type: "error",
-          message: response.data.message || "Submission failed. Please try again.",
+          message:
+            response.data.message || "Submission failed. Please try again.",
         });
       }
     } catch (error: unknown) {
       const axiosErr = error as { response?: { data?: { message?: string } } };
       const errorMessage =
-        axiosErr.response?.data?.message || "Something went wrong. Please try later.";
+        axiosErr.response?.data?.message ||
+        "Something went wrong. Please try later.";
       setSubmitStatus({ type: "error", message: errorMessage });
       recaptchaRef.current?.reset();
       setRecaptchaToken(null);
@@ -116,7 +138,12 @@ export default function Contact() {
       <div className={cn(gigglesPublicShell, "pb-14 pt-8 lg:pt-14")}>
         <div className="mb-14 flex flex-wrap items-start gap-3">
           <span className="inline-flex items-center gap-2 rounded-full bg-[#ffca4d] px-4 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.06em] text-[#755700]">
-            <HeartHandshake className="h-3.5 w-3.5" strokeWidth={2} aria-hidden /> Get in touch
+            <HeartHandshake
+              className="h-3.5 w-3.5"
+              strokeWidth={2}
+              aria-hidden
+            />{" "}
+            Get in touch
           </span>
         </div>
 
@@ -124,14 +151,17 @@ export default function Contact() {
           className={`${fontDisplay} mb-10 max-w-3xl text-[2.15rem] font-semibold tracking-[-0.02em] text-[#2d2f31] md:text-[2.75rem] lg:text-[3.2rem]`}
         >
           We&apos;d love to hear from{" "}
-          <span className="block text-[#755700] md:inline md:leading-none">you.</span>
+          <span className="block text-[#755700] md:inline md:leading-none">
+            you.
+          </span>
         </h1>
 
         <p
           className={`mb-16 max-w-2xl text-[1.05rem] leading-relaxed md:text-[1.1rem] ${gigglesSurface.onSurfaceVariant}`}
         >
-          Whether you have questions about cases, volunteering, partnerships, or you simply want to
-          share a little joy — our team answers every message we receive.
+          Whether you have questions about cases, volunteering, partnerships, or
+          you simply want to share a little joy — our team answers every message
+          we receive.
         </p>
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.95fr)] lg:items-start xl:gap-14">
@@ -186,7 +216,7 @@ export default function Contact() {
                 <textarea
                   required
                   name="message"
-                  rows={5}
+                  rows="5"
                   value={formData.message}
                   onChange={handleInputChange}
                   className={`w-full resize-none rounded-2xl border-0 px-4 py-3.5 outline-none ring-2 ring-transparent transition focus:bg-white focus:ring-[#006a3d]/30 ${fieldWrap}`}
@@ -197,7 +227,11 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={cn(btnPrimaryGiggles, "py-4 text-[0.9rem]", isSubmitting && "opacity-60")}
+                  className={cn(
+                    btnPrimaryGiggles,
+                    "py-4 text-[0.9rem]",
+                    isSubmitting && "opacity-60",
+                  )}
                 >
                   {isSubmitting ? "Sending…" : "Send message"}
                 </button>
@@ -209,7 +243,8 @@ export default function Contact() {
                   />
                 ) : (
                   <p className={`text-xs ${gigglesSurface.onSurfaceVariant}`}>
-                    Configure <code>VITE_RECAPTCHA_SITE_KEY</code> to enable submissions.
+                    Configure <code>VITE_RECAPTCHA_SITE_KEY</code> to enable
+                    submissions.
                   </p>
                 )}
               </div>
@@ -217,9 +252,16 @@ export default function Contact() {
           </div>
 
           <div className="space-y-6">
-            <div className={`${gigglesSurface.containerLow} rounded-[2rem] p-8 lg:p-9`}>
+            <div
+              className={`${gigglesSurface.containerLow} rounded-[2rem] p-8 lg:p-9`}
+            >
               <InfoRow
-                icon={<MapPinIcon className="h-5 w-5 text-[#006a3d]" strokeWidth={1.75} />}
+                icon={
+                  <MapPinIcon
+                    className="h-5 w-5 text-[#006a3d]"
+                    strokeWidth={1.75}
+                  />
+                }
                 title="Our office"
                 lines={[
                   "1516, 3rd Floor, Wazir Nagar",
@@ -229,15 +271,28 @@ export default function Contact() {
               />
               <div className="my-10" aria-hidden />
               <InfoRow
-                icon={<PhoneIcon className="h-5 w-5 text-[#755700]" strokeWidth={1.75} />}
+                icon={
+                  <PhoneIcon
+                    className="h-5 w-5 text-[#755700]"
+                    strokeWidth={1.75}
+                  />
+                }
                 title="Phone"
                 lines={["(+91) 76786 56575", "Mon–Fri · 10:00 – 17:30 IST"]}
               />
               <div className="my-10" aria-hidden />
               <InfoRow
-                icon={<MailIcon className="h-5 w-5 text-[#5b4dcf]" strokeWidth={1.75} />}
+                icon={
+                  <MailIcon
+                    className="h-5 w-5 text-[#5b4dcf]"
+                    strokeWidth={1.75}
+                  />
+                }
                 title="Email"
-                lines={["hello@gigglesfoundation.com", "info@gigglesfoundation.com"]}
+                lines={[
+                  "hello@gigglesfoundation.com",
+                  "info@gigglesfoundation.com",
+                ]}
               />
             </div>
 
@@ -246,7 +301,9 @@ export default function Contact() {
               <p className="relative text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white/80">
                 Headquarters
               </p>
-              <p className={`relative ${fontDisplay} mt-4 text-2xl font-semibold`}>
+              <p
+                className={`relative ${fontDisplay} mt-4 text-2xl font-semibold`}
+              >
                 Kotla · New&nbsp;Delhi
               </p>
               <p className="relative mt-3 max-w-[14rem] text-sm text-white/85">
@@ -321,7 +378,10 @@ function InfoRow({
       <div>
         <p className={`text-sm font-semibold text-[#2d2f31]`}>{title}</p>
         {lines.map((line) => (
-          <p key={line} className={`text-[0.9rem] leading-relaxed ${gigglesSurface.onSurfaceVariant}`}>
+          <p
+            key={line}
+            className={`text-[0.9rem] leading-relaxed ${gigglesSurface.onSurfaceVariant}`}
+          >
             {line}
           </p>
         ))}
@@ -352,10 +412,16 @@ function PromoSlice({
         ? "text-[#755700]"
         : "text-[#006a3d]";
   return (
-    <div className={`${className} flex flex-col justify-between rounded-[2rem] p-8`}>
+    <div
+      className={`${className} flex flex-col justify-between rounded-[2rem] p-8`}
+    >
       <div>
-        <p className="text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[#4a4c50]">{eyebrow}</p>
-        <p className="mt-4 text-[0.975rem] font-medium leading-snug text-[#2d2f31]">{body}</p>
+        <p className="text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[#4a4c50]">
+          {eyebrow}
+        </p>
+        <p className="mt-4 text-[0.975rem] font-medium leading-snug text-[#2d2f31]">
+          {body}
+        </p>
       </div>
       <Link
         to={ctaHref}

@@ -1536,7 +1536,8 @@ export function AdminCaseTable() {
           setIsSavingCase(false);
           return;
         }
-        const { id, ...createPayload } = values;
+        const createPayload = { ...values };
+        delete createPayload.id;
         console.log(values);
         await api.post("/api/admin/cases", createPayload);
         toast.success("Case created successfully.");
