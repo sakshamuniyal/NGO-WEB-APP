@@ -1,19 +1,6 @@
 // backend/src/config/phonepe.ts
 import { StandardCheckoutClient, Env } from 'pg-sdk-node';
 
-/**
- * PhonePe Standard Checkout (`pg-sdk-node`) authenticates with OAuth **client_id** + **client_secret**
- * from the Payment Gateway merchant onboarding flow — not the legacy PG REST “Merchant ID” + “Salt Key”
- * used for checksum (X-VERIFY) APIs. If PhonePe returns `OIM007` / “Client Not Found”, the ID you passed
- * is not a registered Standard Checkout client for the selected environment.
- *
- * Set explicit credentials (recommended):
- *   PHONEPE_CLIENT_ID_PROD / PHONEPE_CLIENT_SECRET_PROD (and _DEV for sandbox)
- * Fallback (legacy names in this repo — only valid if they match what PhonePe issued for Standard Checkout):
- *   PHONEPE_MERCHANT_ID_* / PHONEPE_SALT_KEY_*
- *
- * Docs: https://developer.phonepe.com/payment-gateway/backend-sdk/nodejs-be-sdk/integration-steps
- */
 const isProduction = process.env.NODE_ENV === 'production';
 
 const hasValue = (value: string | undefined): boolean => Boolean(value && value.trim().length > 0);

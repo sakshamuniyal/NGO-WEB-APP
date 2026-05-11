@@ -3,7 +3,8 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { AdminWithRolePrisma } from '../../types/admin';
-import prisma from '../../prisma'; // ✅ Import your configured singleton
+import prisma from '../../prisma';
+import { getAdminByEmail } from 'services/admin/authService';
 
 /** SameSite=None requires Secure; on HTTP localhost use Lax so the cookie is stored and sent. */
 function adminTokenCookieBase() {
@@ -20,10 +21,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   console.log(`[loginAdmin] Attempting login for email: ${email}`);
   try {
-    const admin = await prisma.admin.findUnique({
-      where: { email },
-      include: { role: { include: { permissions: true } } },
-    });
+    const admin = await getAdminByEmail(email)
     if (!admin) {
       console.log(`[loginAdmin] Admin with email ${email} not found.`);
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -40,7 +38,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
     const token = jwt.sign(
       { id: admin.id, email: admin.email, roleId: admin.roleId },
       process.env.JWT_SECRET!,
-      { expiresIn: '8h' } // Token expires in 8 hours for testing
+      { expiresIn: '8h' } 
     );
 
     const cookieOpts = adminTokenCookieBase();

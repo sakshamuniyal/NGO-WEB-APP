@@ -42,7 +42,7 @@ function readUserJwtPayload(decoded: object): UserJwtPayload | null {
 }
 
 export function generateToken(payload: UserJwtPayload): string {
-  return jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: "1h" });
+  return jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: "8h" });
 }
 
 export function verifyToken(token: string): UserJwtPayload | null {
