@@ -1,39 +1,34 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
+import pg from 'pg';
+import 'dotenv/config';
 
-dotenv.config();
-
-const connectionString = process.env.DATABASE_URL!;
+const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error('DATABASE_URL is not defined in .env');
+  throw new Error('DATABASE_URL is missing');
 }
 
-// 1. Setup the Pool and Adapter
-const pool = new Pool({
+const pool = new pg.Pool({
   connectionString,
   max: 10,
-  idleTimeoutMillis: 30000,
 });
+
 const adapter = new PrismaPg(pool);
 
-// 2. Create a function to initialize the client
 const prismaClientSingleton = () => {
   return new PrismaClient({
-    adapter,
+    adapter: adapter,
     log: ['query', 'error', 'warn'],
   });
 };
 
-// 3. Prevent multiple instances in development
-declare global {
-  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
-}
+const globalForPrisma = globalThis as unknown as {
+  prisma: ReturnType<typeof prismaClientSingleton> | undefined;
+};
 
-const prisma = globalThis.prisma ?? prismaClientSingleton();
+const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
 
 export default prisma;
 
-if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
