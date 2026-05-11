@@ -23,7 +23,7 @@ const adapter = new PrismaPg(pool);
 // 2. Create a function to initialize the client
 const prismaClientSingleton = () => {
   return new PrismaClient({
-    adapter,
+    adapter: adapter,
     log: ['query', 'error', 'warn'],
   });
 };

@@ -1,8 +1,5 @@
-import prisma from '../../prisma'; // ✅ Import your configured singleton
+import prisma from '../../prisma'; 
 import { User, Address } from '@prisma/client';
-
-// Define an interface for the user object when fetched with its address
-// This is important because the 'address' relation might not always be included
 interface UserWithAddress extends User {
   address?: Address | null; // Address is optional as per Prisma schema and include option
 }

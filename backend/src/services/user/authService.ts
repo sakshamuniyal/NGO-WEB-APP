@@ -2,16 +2,13 @@
 
 import { initiateTwilioVerification, checkTwilioVerification } from './otpService';
 import { generateToken } from '../../utils/jwt';
-import { PrismaClient, User as PrismaUser, Address } from '@prisma/client'; // Import Prisma's User and Address types
-import { isProfileComplete as checkProfileCompletion } from '../user/userService'; // Renamed import to avoid conflict
+import { PrismaClient, User as PrismaUser, Address } from '@prisma/client'; 
+import { isProfileComplete as checkProfileCompletion } from '../user/userService';
 import { Response } from 'express';
 
 import prisma from '../../prisma'; 
 
 
-// Define the User object structure as it will be used and returned
-// This now accurately reflects the Prisma User model's properties
-// and includes the 'address' relation as it will be fetched.
 interface UserWithComputedStatus {
     id: string;
     phoneNumber: string;
