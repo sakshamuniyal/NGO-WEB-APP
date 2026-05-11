@@ -1,4 +1,3 @@
-console.log("DB URL Check:", process.env.DATABASE_URL ? "Exists (starts with " + process.env.DATABASE_URL.substring(0, 8) + "...)" : "IS COMPLETELY MISSING");
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
@@ -23,7 +22,7 @@ const adapter = new PrismaPg(pool);
 // 2. Create a function to initialize the client
 const prismaClientSingleton = () => {
   return new PrismaClient({
-    adapter: adapter,
+    adapter,
     log: ['query', 'error', 'warn'],
   });
 };

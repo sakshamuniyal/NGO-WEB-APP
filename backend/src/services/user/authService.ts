@@ -2,7 +2,7 @@
 
 import { initiateTwilioVerification, checkTwilioVerification } from './otpService';
 import { generateToken } from '../../utils/jwt';
-import { PrismaClient, User as PrismaUser, Address } from '@prisma/client'; 
+import type { User as PrismaUser, Address } from '@prisma/client';
 import { isProfileComplete as checkProfileCompletion } from '../user/userService';
 import { Response } from 'express';
 
@@ -108,7 +108,7 @@ export async function verifyOTP(
     res.cookie("token", token, {
         httpOnly: true,
         path: '/',
-        secure: process.env.NODE_ENV === "production",
+        secure: true,
         sameSite: 'none',
         maxAge: 8 * 60 * 60 * 1000,
     });
